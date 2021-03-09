@@ -21,7 +21,7 @@ interface OvenCardProps extends Oven {
   action?: () => void | Promise<void>;
 }
 
-const useStyles = makeStyles(() =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       maxWidth: 500,
@@ -40,12 +40,11 @@ const scaleBetween = (
   min: number,
   max: number,
 ): number => {
-  const adjustedMax = min === max ? max + 1 : max;
   const num = Math.ceil(
-    ((maxAllowed - minAllowed) * (unscaledNum - min)) / (adjustedMax - min) + minAllowed,
+    ((maxAllowed - minAllowed) * (unscaledNum - min)) / (max - min) + minAllowed,
   );
   if (num % 1 === 0) return num;
-  return scaleBetween(num, minAllowed, maxAllowed, min, adjustedMax);
+  return scaleBetween(num, minAllowed, maxAllowed, min, max);
 };
 
 export const OvenCard: React.FC<OvenCardProps> = ({

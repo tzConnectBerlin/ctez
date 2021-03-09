@@ -1,6 +1,7 @@
 import { WalletContract } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
-import { EditDepositorOps, ErrorType, Oven } from '../interfaces';
+import { ErrorType } from '../interfaces';
+import { Oven } from '../interfaces/ctez';
 import { CTEZ_ADDRESS } from '../utils/globals';
 import { getLastOvenId, saveLastOven } from '../utils/ovenUtils';
 import { getTezosInstance } from './client';
@@ -8,7 +9,7 @@ import { executeMethod, initContract } from './utils';
 
 let cTez: WalletContract;
 
-export const initCTez = async (address: string): Promise<void> => {
+export const initCTez = async (address: string) => {
   cTez = await initContract(address);
 };
 
@@ -16,31 +17,15 @@ export const getCTez = (): WalletContract => {
   return cTez;
 };
 
-export const create = async (
-  userAddress: string,
-  bakerAddress: string,
-  amount: number,
-): Promise<string> => {
+export const create = async (userAddress: string, bakerAddress: string): Promise<string> => {
   const newOvenId = getLastOvenId(userAddress) + 1;
-  const hash = await executeMethod(cTez, 'create', [newOvenId, bakerAddress], undefined, amount);
+  const hash = await executeMethod(cTez, 'create', [newOvenId, bakerAddress]);
   saveLastOven(userAddress, newOvenId);
   return hash;
 };
 
-export const delegate = async (ovenAddress: string, bakerAddress: string): Promise<string> => {
-  const ovenContract = await initContract(ovenAddress);
-  const hash = await executeMethod(ovenContract, 'oven_delegate', [bakerAddress]);
-  return hash;
-};
-
-export const editDepositor = async (
-  ovenAddress: string,
-  ops: EditDepositorOps,
-  enable: boolean,
-  address?: string,
-): Promise<string> => {
-  const ovenContract = await initContract(ovenAddress);
-  const hash = await executeMethod(ovenContract, 'oven_edit_depositor', [ops, enable, address]);
+export const delegate = async (bakerAddress: string): Promise<string> => {
+  const hash = await executeMethod(cTez, 'delegate', [bakerAddress]);
   return hash;
 };
 
@@ -66,19 +51,18 @@ export const liquidate = async (
   to: string,
 ): Promise<string> => {
   const hash = await executeMethod(cTez, 'liquidate', [
-    ovenId,
-    overOwner,
+    {
+      id: ovenId,
+      owner: overOwner,
+    },
     new BigNumber(amount).shiftedBy(6),
     to,
   ]);
   return hash;
 };
 
-export const mintOrBurn = async (ovenId: number, quantity: number): Promise<string> => {
-  const hash = await executeMethod(cTez, 'mint_or_burn', [
-    ovenId,
-    new BigNumber(quantity).shiftedBy(6),
-  ]);
+export const mintOrBurn = async (quantity: number): Promise<string> => {
+  const hash = await executeMethod(cTez, 'mint_or_burn', [new BigNumber(quantity).shiftedBy(6)]);
   return hash;
 };
 

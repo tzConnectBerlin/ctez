@@ -28,7 +28,7 @@ export const FormikDateTimePicker: React.FC<FormikDateTimePickerProps> = ({
           {...props}
           error={toShowError}
           helperText={toShowError ? currentError ?? props.helperText : undefined}
-          onBlur={() => {
+          onBlur={(e) => {
             setFieldTouched(name, true, false);
             validateForm();
           }}

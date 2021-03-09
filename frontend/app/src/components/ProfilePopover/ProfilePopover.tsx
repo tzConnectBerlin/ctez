@@ -1,6 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Popover, Divider, Button } from '@material-ui/core';
+import { useTranslation } from 'react-i18next';
 import Address from '../Address';
 import Identicon from '../Identicon';
 import { Typography } from '../Typography';
@@ -56,6 +57,7 @@ export const ProfilePopover: React.FC<ProfilePopoverProps> = ({
 }) => {
   const classes = useStyles();
   const id = isOpen ? 'profile-popover' : undefined;
+  const { t } = useTranslation(['common']);
   return (
     <div>
       <Popover

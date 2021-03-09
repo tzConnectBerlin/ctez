@@ -11,22 +11,12 @@ export const isWalletConnected = (): boolean => {
   return localStorage.getItem('wallet-connected') === 'true';
 };
 
-const connectBeacon = async (
-  wallet: BeaconWallet,
-  network: NetworkType = NetworkType.EDONET,
-): Promise<boolean> => {
+const connectBeacon = async (wallet: BeaconWallet, network: NetworkType = NetworkType.EDONET) => {
   try {
     await wallet.requestPermissions({ network: { type: network } });
-    return true;
   } catch (error) {
     console.log(error);
   }
-  return false;
-};
-
-export const disconnectBeacon = async (wallet: BeaconWallet): Promise<void> => {
-  localStorage.removeItem('wallet-connected');
-  await wallet.disconnect();
 };
 
 export const getBeaconInstance = async (
@@ -44,14 +34,8 @@ export const getBeaconInstance = async (
       ? await wallet.client.checkPermissions(BeaconMessageType.SignPayloadRequest)
       : undefined;
     const networkType: NetworkType = network as NetworkType;
-    if (connect && !opsRequest && !signRequest) {
-      const isConnected = await connectBeacon(wallet, networkType);
-      /**
-       * May not be needed
-       */
-      isConnected && setConnected();
-      !isConnected && (await disconnectBeacon(wallet));
-    }
+    connect && !opsRequest && !signRequest && (await connectBeacon(wallet, networkType));
+    setConnected();
     return {
       wallet,
       network,
@@ -60,4 +44,9 @@ export const getBeaconInstance = async (
   } catch (error) {
     console.log(error);
   }
+};
+
+export const disconnectBeacon = async (wallet: BeaconWallet): Promise<void> => {
+  localStorage.removeItem('wallet-connected');
+  await wallet.disconnect();
 };

@@ -3,6 +3,7 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import {
   FcBusiness,
@@ -10,7 +11,6 @@ import {
   FcPrint,
   FcConferenceCall,
   FcBrokenLink,
-  FcPaid,
 } from 'react-icons/fc';
 import { Deposit } from '../../pages/Deposit';
 import { Withdraw } from '../../pages/Withdraw';
@@ -19,8 +19,8 @@ import { Delegate } from '../../pages/Delegate';
 import { Liquidate } from '../../pages/Liquidate';
 
 interface TabPanelProps {
-  index: number;
-  value: number;
+  index: any;
+  value: any;
 }
 
 const TabPanel: React.FC<TabPanelProps> = ({ children, value, index, ...other }) => {
@@ -59,7 +59,7 @@ export const OvenActions: React.FC = () => {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
 
-  const handleChange = (event: React.SyntheticEvent<Element, Event>, newValue: number) => {
+  const handleChange = (event: any, newValue: number) => {
     setValue(newValue);
   };
 
@@ -82,19 +82,18 @@ export const OvenActions: React.FC = () => {
             icon={<FcMoneyTransfer />}
             {...a11yProps(1)}
           />
-          <Tab className={classes.tab} label="Mint" icon={<FcPrint />} {...a11yProps(2)} />
-          <Tab className={classes.tab} label="Repay" icon={<FcPaid />} {...a11yProps(3)} />
+          <Tab className={classes.tab} label="Mint or Burn" icon={<FcPrint />} {...a11yProps(2)} />
           <Tab
             className={classes.tab}
             label="Delegate"
             icon={<FcConferenceCall />}
-            {...a11yProps(4)}
+            {...a11yProps(3)}
           />
           <Tab
             className={classes.tab}
             label="Liquidate"
             icon={<FcBrokenLink />}
-            {...a11yProps(5)}
+            {...a11yProps(4)}
           />
         </Tabs>
       </AppBar>
@@ -105,15 +104,12 @@ export const OvenActions: React.FC = () => {
         <Withdraw />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        <MintOrBurn type="mint" />
+        <MintOrBurn />
       </TabPanel>
       <TabPanel value={value} index={3}>
-        <MintOrBurn type="repay" />
-      </TabPanel>
-      <TabPanel value={value} index={4}>
         <Delegate />
       </TabPanel>
-      <TabPanel value={value} index={5}>
+      <TabPanel value={value} index={4}>
         <Liquidate />
       </TabPanel>
     </div>
