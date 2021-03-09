@@ -1,10 +1,11 @@
+import React from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 import styled from '@emotion/styled';
 import { AxiosError } from 'axios';
 import { useQuery } from 'react-query';
 import { Field, Form, Formik } from 'formik';
-import { Button, Grid, Paper } from '@material-ui/core';
+import { Button, Grid, Paper, InputAdornment } from '@material-ui/core';
 import { useToasts } from 'react-toast-notifications';
 import { useHistory } from 'react-router-dom';
 import { getDelegates } from '../api/tzkt';
@@ -13,16 +14,19 @@ import Page from '../components/Page';
 import { FormikAutocomplete } from '../components/Autocomplete';
 import { Baker } from '../interfaces';
 import { useWallet } from '../wallet/hooks';
+import FormikTextField from '../components/TextField';
+import { TezosIcon } from '../components/TezosIcon';
 
 interface CreateVaultForm {
   delegate: string;
+  amount: number;
 }
 
 const PaperStyled = styled(Paper)`
   padding: 2em;
 `;
 
-const CreateVaultComponent: React.FC<WithTranslation> = ({ t }) => {
+const CreateOvenComponent: React.FC<WithTranslation> = ({ t }) => {
   const { data: delegates } = useQuery<Baker[], AxiosError, Baker[]>(['delegates'], () => {
     return getDelegates();
   });
@@ -31,16 +35,18 @@ const CreateVaultComponent: React.FC<WithTranslation> = ({ t }) => {
   const history = useHistory();
   const initialValues: CreateVaultForm = {
     delegate: '',
+    amount: 0,
   };
 
   const validationSchema = Yup.object().shape({
     delegate: Yup.string().required(t('required')),
+    amount: Yup.number().optional(),
   });
 
   const handleFormSubmit = async (data: CreateVaultForm) => {
     if (userAddress) {
       try {
-        const result = await create(userAddress, data.delegate);
+        const result = await create(userAddress, data.delegate, (data.amount = 0));
         if (result) {
           addToast('Transaction Submitted', {
             appearance: 'success',
@@ -59,7 +65,7 @@ const CreateVaultComponent: React.FC<WithTranslation> = ({ t }) => {
   };
 
   return (
-    <Page title={t('createVault')}>
+    <Page title={t('header:createOven')}>
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
@@ -88,6 +94,24 @@ const CreateVaultComponent: React.FC<WithTranslation> = ({ t }) => {
                   />
                 </Grid>
                 <Grid item>
+                  <Field
+                    component={FormikTextField}
+                    name="amount"
+                    id="amount"
+                    label={t('initialDeposit')}
+                    className="amount"
+                    type="number"
+                    min="0.1"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <TezosIcon height={30} width={30} />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+                <Grid item>
                   <Button
                     variant="contained"
                     type="submit"
@@ -106,4 +130,4 @@ const CreateVaultComponent: React.FC<WithTranslation> = ({ t }) => {
   );
 };
 
-export const CreateVaultPage = withTranslation(['common'])(CreateVaultComponent);
+export const CreateOvenPage = withTranslation(['common', 'header'])(CreateOvenComponent);

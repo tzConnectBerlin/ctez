@@ -7,6 +7,7 @@ import {
   makeStyles,
   Theme,
   Grid,
+  Box,
 } from '@material-ui/core';
 import { useSelector, useDispatch } from 'react-redux';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -16,7 +17,6 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from 'react-query';
 import { useHistory } from 'react-router-dom';
 import { Drawer } from '../components/Drawer/Drawer';
-import { LinkList } from '../components/LinkList/LinkList';
 import { OvenActions } from '../components/OvenActions/OvenActions';
 import { OvenCard } from '../components/OvenCard/OvenCard';
 import Page from '../components/Page';
@@ -32,35 +32,28 @@ export const HomePage: React.FC = () => {
   const { t } = useTranslation(['common']);
   const dispatch = useDispatch();
   const history = useHistory();
-  const cTezMethods = [
-    {
-      to: '/create',
-      primary: t('createVault'),
-    },
-  ];
-
-  const cfmmMethods = [
-    {
-      to: '/add-liquidity',
-      primary: t('addLiquidity'),
-    },
-  ];
 
   const [{ pkh: userAddress }] = useWallet();
   const { data: ovenData, isLoading } = useQuery<
     Oven[] | undefined,
     AxiosError,
     Oven[] | undefined
-  >(['ovenData', userAddress], async () => {
-    if (userAddress) {
-      const ovens = await getOvens(userAddress);
-      return ovens
-        ? ovens.filter((data: Oven) => {
-            return data && data.baker !== null;
-          })
-        : undefined;
-    }
-  });
+  >(
+    ['ovenData', userAddress],
+    async () => {
+      if (userAddress) {
+        const ovens = await getOvens(userAddress);
+        return ovens
+          ? ovens.filter((data: Oven) => {
+              return data && data.baker !== null;
+            })
+          : undefined;
+      }
+    },
+    {
+      refetchInterval: 30000,
+    },
+  );
 
   const { showActions } = useSelector((state: RootState) => state.ovenActions);
 
@@ -128,7 +121,7 @@ export const HomePage: React.FC = () => {
             })}
         </Grid>
       )}
-      {!isLoading && <LinkList list={cTezMethods} />}
+      {!isLoading && userAddress && !ovenData && <Box p={3}>{t('noOvens')}</Box>}
       {!isLoading && ovenData && ovenData.length > 0 && (
         <Drawer
           open={showActions}
